@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useCallback } from "react";
 import { useEffect, useState } from "react";
 import {
   ButtonStyled,
@@ -8,39 +9,41 @@ import {
   Separator,
 } from "./form.styled";
 
-const InitialState = {
-  FirstName: "",
-  LastName: "",
-  Date: "",
-  Demande: "",
-  Date_Debut: "",
-  Date_Fin: "",
-  Duree: {
-    demi: false,
-    full: false,
-    multi: false,
-  },
-  Demi: {
-    AM: false,
-    PM: false,
-  },
-  Valable: {
-    CP: false,
-    RTT: false,
-    CSS: false,
-    Others: false,
-  },
-};
-const Form = () => {
-  const [userInfos, setUserInfos] = useState(InitialState);
+const Form = ({ user, edit, InitialState }) => {
+  const [userInfos, setUserInfos] = useState({ ...InitialState });
   const [datas, setDatas] = useState({});
 
-  useEffect(() => {
+  const { User_Id, FirstName, LastName } = user;
+
+  let dateDuJour = new Date().toISOString().split("T")[0];
+
+  if (!userInfos.Date && !edit) {
     setUserInfos({
       ...userInfos,
-      Date: new Date().toISOString().split("T")[0],
+      Date: dateDuJour,
+      FirstName: FirstName,
+      LastName: LastName,
+      userIdDeposeur: User_Id,
     });
-  }, []);
+  }
+
+  useEffect(() => {
+    let TotalJour = userInfos.Duree.demi
+      ? 0.5
+      : userInfos.Duree.full
+      ? 1
+      : userInfos.Duree.multi
+      ? dateDiff(new Date(userInfos.Date_Debut), new Date(userInfos.Date_Fin))
+      : 0;
+
+    setUserInfos({ ...userInfos, TotalJour });
+  }, [
+    userInfos.Date_Debut,
+    userInfos.Date_Fin,
+    userInfos.Duree.demi,
+    userInfos.Duree.full,
+    userInfos.Duree.multi,
+  ]);
 
   const axiosCall = async () => {
     const response = await axios({
@@ -54,14 +57,24 @@ const Form = () => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await axiosCall();
+  };
+
   const handleChangeTextInput = (e) => {
     let { name, value } = e.target;
     setUserInfos({ ...userInfos, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await axiosCall();
+  const dateDiff = (dateDebut, dateFin) => {
+    const calc = Math.ceil(
+      Math.abs(dateFin - dateDebut) / (1000 * 60 * 60 * 24)
+    );
+    if (dateDebut && dateFin && !isNaN(calc)) {
+      return calc;
+    }
+    return 0;
   };
 
   if (Object.keys(datas).length > 0) {
@@ -153,6 +166,7 @@ const Form = () => {
                         full: false,
                         multi: false,
                       },
+                      Date_Fin: "",
                     });
                   }}
                 />
@@ -173,6 +187,12 @@ const Form = () => {
                         full: true,
                         multi: false,
                       },
+                      Demi: {
+                        ...userInfos.Demi,
+                        AM: false,
+                        PM: false,
+                      },
+                      Date_Fin: "",
                     });
                   }}
                 />
@@ -192,6 +212,11 @@ const Form = () => {
                         demi: false,
                         full: false,
                         multi: true,
+                      },
+                      Demi: {
+                        ...userInfos.Demi,
+                        AM: false,
+                        PM: false,
                       },
                     });
                   }}
@@ -271,6 +296,16 @@ const Form = () => {
                 />
               </div>
             )}
+          </div>
+          <div className="demande">
+            <label htmlFor="Total_Jour">Nombre de jour de congés : </label>
+            <input
+              disabled
+              type="text"
+              name="TotalJour"
+              id="Total_Jour"
+              value={userInfos.TotalJour}
+            />
           </div>
           <div className="demande">
             <label className="label_first" htmlFor="Valable">
@@ -363,8 +398,24 @@ const Form = () => {
               </div>
             </div>
           </div>
+          {userInfos.Valable.Others && (
+            <div className="demande">
+              <label className="label_first" htmlFor="Motif_Autre">
+                Motif :{" "}
+              </label>
+              <input
+                type="text"
+                name="raisonAutre"
+                id="Motif_Autre"
+                value={userInfos.raisonAutre}
+                onChange={handleChangeTextInput}
+              />
+            </div>
+          )}
         </div>
       </SecondPartFromFormStyled>
+      <Separator />
+      {edit && <div>partie valideur</div>}
       <Separator />
       <ButtonStyled type="submit">Valider</ButtonStyled>
     </FormStyled>
