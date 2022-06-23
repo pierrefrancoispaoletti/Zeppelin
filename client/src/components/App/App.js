@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { documentData as documentData, user as userData } from "../datas";
+import { documentData, user, tableauIndex } from "../datas";
 import Form from "../Form/Form";
 
 function App() {
@@ -36,7 +36,11 @@ function App() {
         FirstName: "",
         LastName: "",
         valideurId: "",
-        statutValidation: "",
+        statutValidation: {
+          accord: false,
+          noAccord: false,
+          partialAccord: false,
+        },
         dateDebut: "",
         dateFin: "",
         dateTraitement: "",

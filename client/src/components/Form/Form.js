@@ -27,6 +27,19 @@ const Form = ({ user, edit, InitialState }) => {
     });
   }
 
+  if (!userInfos.Valideur.valideurId && edit) {
+    setUserInfos({
+      ...userInfos,
+      Valideur: {
+        ...userInfos.Valideur,
+        dateTraitement: dateDuJour,
+        FirstName: FirstName,
+        LastName: LastName,
+        valideurId: User_Id,
+      },
+    });
+  }
+
   useEffect(() => {
     let TotalJour = userInfos.Duree.demi
       ? 0.5
@@ -44,6 +57,45 @@ const Form = ({ user, edit, InitialState }) => {
     userInfos.Duree.full,
     userInfos.Duree.multi,
   ]);
+
+  useEffect(() => {
+    let accord = userInfos.Valideur.statutValidation.accord;
+    let noAccord = userInfos.Valideur.statutValidation.noAccord;
+    let accordPartial = userInfos.Valideur.statutValidation.partialAccord;
+    if (accord && !userInfos.Valideur.dateDebut) {
+      setUserInfos({
+        ...userInfos,
+        Valideur: {
+          ...userInfos.Valideur,
+          dateDebut: userInfos.Date_Debut,
+          dateFin: userInfos.Date_Fin,
+        },
+      });
+    }
+
+    if (noAccord && !userInfos.Valideur.dateDebut) {
+      setUserInfos({
+        ...userInfos,
+        Valideur: {
+          ...userInfos.Valideur,
+          dateDebut: "",
+          dateFin: "",
+        },
+      });
+    }
+
+    if (accordPartial && !userInfos.Valideur.dateDebut) {
+      setUserInfos({
+        ...userInfos,
+        Valideur: {
+          ...userInfos.Valideur,
+          dateDebut: userInfos.Date_Debut,
+          dateFin: userInfos.Date_Fin,
+        },
+      });
+    }
+    console.log(userInfos);
+  }, [userInfos]);
 
   const axiosCall = async () => {
     const response = await axios({
@@ -415,8 +467,204 @@ const Form = ({ user, edit, InitialState }) => {
         </div>
       </SecondPartFromFormStyled>
       <Separator />
-      {edit && <div>partie valideur</div>}
-      <Separator />
+      {edit && (
+        <>
+          <FirstPartFromFormStyled>
+            <h2>À Remplir par le Responsable </h2>
+            <div className="name">
+              <label className="label_first" htmlFor="FirstName_Valideur">
+                Nom{" "}
+              </label>
+              <div className="name_first_block">
+                <div className="name_input">
+                  <input
+                    type="text"
+                    name="FirstName_Valideur"
+                    id="FirstName_Valideur"
+                    value={userInfos.Valideur.FirstName}
+                    onChange={(e) => {
+                      setUserInfos({
+                        ...userInfos,
+                        Valideur: {
+                          ...userInfos.Valideur,
+                          FirstName: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                  <label className="small_label" htmlFor="FirstName_Valideur">
+                    Prénom Valideur{" "}
+                  </label>
+                </div>
+                <div className="name_input">
+                  <input
+                    type="text"
+                    name="LastName_Valideur"
+                    id="LastName_Valideur"
+                    value={userInfos.Valideur.LastName}
+                    onChange={(e) => {
+                      setUserInfos({
+                        ...userInfos,
+                        Valideur: {
+                          ...userInfos.Valideur,
+                          LastName: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                  <label className="small_label" htmlFor="LastName_Valideur">
+                    Nom de famille Valideur{" "}
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="label_first" htmlFor="Date_Traitement">
+                Date Traitement{" "}
+              </label>
+              <input
+                disabled
+                className="date_demande"
+                type="date"
+                name="Date_Traitement"
+                id="Date_Traitement"
+                value={userInfos.Valideur.dateTraitement}
+                onChange={(e) => {
+                  setUserInfos({
+                    ...userInfos,
+                    Valideur: {
+                      ...userInfos.Valideur,
+                      dateTraitement: e.target.value,
+                    },
+                  });
+                }}
+              />
+            </div>
+          </FirstPartFromFormStyled>
+          <SecondPartFromFormStyled>
+            <div className="demande">
+              <div>
+                <div className="demande_radio">
+                  <input
+                    type="radio"
+                    name="Demande_Valideur"
+                    id="Demande_valideur_accord"
+                    checked={userInfos.Valideur.accord}
+                    onChange={(e) => {
+                      setUserInfos({
+                        ...userInfos,
+                        Valideur: {
+                          ...userInfos.Valideur,
+                          statutValidation: {
+                            ...userInfos.Valideur.statutValidation,
+                            accord: true,
+                            noAccord: false,
+                            partialAccord: false,
+                          },
+                        },
+                      });
+                    }}
+                  />
+                  <label htmlFor="Demande_valideur_accord">Accorde</label>
+                </div>
+                <div className="demande_radio">
+                  <input
+                    type="radio"
+                    name="Demande_Valideur"
+                    id="Demande_Valideur_NoAccord"
+                    checked={userInfos.Valideur.noAccord}
+                    onChange={(e) => {
+                      setUserInfos({
+                        ...userInfos,
+                        Valideur: {
+                          ...userInfos.Valideur,
+                          statutValidation: {
+                            ...userInfos.Valideur.statutValidation,
+                            accord: false,
+                            noAccord: true,
+                            partialAccord: false,
+                          },
+                          DateDebut: "",
+                          DateFin: "",
+                        },
+                      });
+                    }}
+                  />
+                  <label htmlFor="Demande_Valideur_NoAccord">
+                    N'accorde pas
+                  </label>
+                </div>
+                <div className="demande_radio">
+                  <input
+                    type="radio"
+                    name="Demande_Valideur"
+                    id="Demande_Valideur_Partial"
+                    checked={userInfos.Valideur.partialAccord}
+                    onChange={(e) => {
+                      setUserInfos({
+                        ...userInfos,
+                        Valideur: {
+                          ...userInfos.Valideur,
+                          statutValidation: {
+                            ...userInfos.Valideur.statutValidation,
+                            accord: false,
+                            noAccord: false,
+                            partialAccord: true,
+                          },
+                        },
+                      });
+                    }}
+                  />
+                  <label htmlFor="Demande_Valideur_Partial">
+                    Accord partiel
+                  </label>
+                  {userInfos.Valideur.statutValidation.partialAccord && (
+                    <div style={{ display: "flex", marginTop: "12px" }}>
+                      <div className="demande_date">
+                        <label htmlFor="Date_Debut_Valideur">Du : </label>
+                        <input
+                          type="date"
+                          name="Date_Debut_Valideur"
+                          id="Date_Debut_Valideur"
+                          value={userInfos.Valideur.dateDebut}
+                          onChange={(e) => {
+                            setUserInfos({
+                              ...userInfos,
+                              Valideur: {
+                                ...userInfos.Valideur,
+                                dateDebut: e.target.value,
+                              },
+                            });
+                          }}
+                        />
+                      </div>
+                      <div className="demande_date">
+                        <label htmlFor="Date_Fin_Valideur">Au :</label>
+                        <input
+                          type="date"
+                          name="Date_Fin_Valideur"
+                          id="Date_Fin_Valideur"
+                          value={userInfos.Valideur.dateFin}
+                          onChange={(e) => {
+                            setUserInfos({
+                              ...userInfos,
+                              Valideur: {
+                                ...userInfos.Valideur,
+                                dateFin: e.target.value,
+                              },
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </SecondPartFromFormStyled>
+          <Separator />
+        </>
+      )}
       <ButtonStyled type="submit">Valider</ButtonStyled>
     </FormStyled>
   );
