@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useCallback } from "react";
 import { useEffect, useState } from "react";
+import { LoaderStyled } from "../Loader/loader.style";
 import {
   ButtonStyled,
   FirstPartFromFormStyled,
@@ -11,6 +11,8 @@ import {
 
 const Form = ({ user, edit, InitialState }) => {
   const [userInfos, setUserInfos] = useState({ ...InitialState });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [datas, setDatas] = useState({});
 
   const { User_Id, FirstName, LastName } = user;
@@ -39,6 +41,12 @@ const Form = ({ user, edit, InitialState }) => {
       },
     });
   }
+
+  useEffect(() => {
+    if (userInfos.Duree.demi && userInfos.Date_debut && !userInfos.Date_Fin) {
+      setUserInfos({ ...userInfos, Date_Fin: userInfos.Date_debut });
+    }
+  }, [userInfos]);
 
   useEffect(() => {
     let TotalJour = userInfos.Duree.demi
@@ -94,18 +102,20 @@ const Form = ({ user, edit, InitialState }) => {
         },
       });
     }
-    console.log(userInfos);
   }, [userInfos]);
 
   const axiosCall = async () => {
+    setLoading(true);
     const response = await axios({
       method: "POST",
       url: "traitement.php",
       data: JSON.stringify(userInfos),
     });
     if (response.data.status === "OK") {
-      const res = await JSON.parse(response.data.response);
-      setDatas(res);
+      setLoading(false);
+    } else {
+      setLoading(false);
+      setError(true);
     }
   };
 
@@ -129,10 +139,6 @@ const Form = ({ user, edit, InitialState }) => {
     return 0;
   };
 
-  if (Object.keys(datas).length > 0) {
-    console.log(datas);
-  }
-
   return (
     <FormStyled onSubmit={handleSubmit}>
       <FirstPartFromFormStyled>
@@ -143,6 +149,7 @@ const Form = ({ user, edit, InitialState }) => {
           <div className="name_first_block">
             <div className="name_input">
               <input
+                disabled={edit}
                 type="text"
                 name="FirstName"
                 id="FirstName"
@@ -155,6 +162,7 @@ const Form = ({ user, edit, InitialState }) => {
             </div>
             <div className="name_input">
               <input
+                disabled={edit}
                 type="text"
                 name="LastName"
                 id="LastName"
@@ -191,6 +199,7 @@ const Form = ({ user, edit, InitialState }) => {
               Je demande un congé pour le motif suivant
             </label>
             <input
+              disabled={edit}
               type="text"
               name="Demande"
               id="Demande"
@@ -205,6 +214,7 @@ const Form = ({ user, edit, InitialState }) => {
             <div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande"
                   id="Demande_demi"
@@ -226,6 +236,7 @@ const Form = ({ user, edit, InitialState }) => {
               </div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande"
                   id="Demande_one_day"
@@ -252,6 +263,7 @@ const Form = ({ user, edit, InitialState }) => {
               </div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande"
                   id="Demande_Mutliple"
@@ -283,6 +295,7 @@ const Form = ({ user, edit, InitialState }) => {
                 {`${userInfos.Duree.multi ? "Du : " : "Le : "} `}
               </label>
               <input
+                disabled={edit}
                 type="date"
                 name="Date_Debut"
                 id="Date_Debut"
@@ -294,6 +307,7 @@ const Form = ({ user, edit, InitialState }) => {
               <>
                 <div className="demande_radio">
                   <input
+                    disabled={edit}
                     type="radio"
                     name="Demande_Demi"
                     id="Demande_demi_AM"
@@ -315,6 +329,7 @@ const Form = ({ user, edit, InitialState }) => {
                 </div>
                 <div className="demande_radio">
                   <input
+                    disabled={edit}
                     type="radio"
                     name="Demande_Demi"
                     id="Demande_demi_PM"
@@ -340,6 +355,7 @@ const Form = ({ user, edit, InitialState }) => {
               <div className="demande_date">
                 <label htmlFor="Date_Fin">Au : </label>
                 <input
+                  disabled={edit}
                   type="date"
                   name="Date_Fin"
                   id="Date_Fin"
@@ -366,6 +382,7 @@ const Form = ({ user, edit, InitialState }) => {
             <div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande_Valable"
                   id="Demande_Valable_CP"
@@ -383,10 +400,11 @@ const Form = ({ user, edit, InitialState }) => {
                     });
                   }}
                 />
-                <label htmlFor="Demande_Valable_CP">Conges payés </label>
+                <label htmlFor="Demande_Valable_CP">Congés payés </label>
               </div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande_Valable"
                   id="Demande_Valable_RTT"
@@ -408,6 +426,7 @@ const Form = ({ user, edit, InitialState }) => {
               </div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande_Valable"
                   id="Demande_Valable_CSS"
@@ -425,10 +444,11 @@ const Form = ({ user, edit, InitialState }) => {
                     });
                   }}
                 />
-                <label htmlFor="Demande_Valable_CSS">Congé sans soldes </label>
+                <label htmlFor="Demande_Valable_CSS">Congés sans soldes </label>
               </div>
               <div className="demande_radio">
                 <input
+                  disabled={edit}
                   type="radio"
                   name="Demande_Valable"
                   id="Demande_demi_Others"
@@ -456,6 +476,7 @@ const Form = ({ user, edit, InitialState }) => {
                 Motif :{" "}
               </label>
               <input
+                disabled={edit}
                 type="text"
                 name="raisonAutre"
                 id="Motif_Autre"
@@ -665,7 +686,13 @@ const Form = ({ user, edit, InitialState }) => {
           <Separator />
         </>
       )}
-      <ButtonStyled type="submit">Valider</ButtonStyled>
+      <ButtonStyled type="submit" disabled={loading || error} error={error}>
+        {loading
+          ? "Soumission..."
+          : error
+          ? "Erreur lors de la soumission"
+          : "Soumettre"}
+      </ButtonStyled>
     </FormStyled>
   );
 };

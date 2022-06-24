@@ -1,40 +1,77 @@
-$(document).ready(function(){
+<?php
+$Nom_Doc = $Valeurs['Nom_Fichier'];
+$N_Client = $Valeurs['N_CLIENT'];
 
-var approbateur = $(".custom_t3 a");
-var utilisateur = "<? echo $Utilisateur ?>";
-var bouton_visible = false;
+$DB_dbName_GED = Nom_Base_Client($N_Client);
 
-if(approbateur.eq(0).text() != "") {
+preg_match("/([0-9]+)[-.]*[a-z]*/", $Nom_Doc, $Matche_Sub);
+$id = $Matche_Sub[1];
 
-for(var i = 0; i < approbateur.length; i++){ if(approbateur.eq(i).text().indexOf(utilisateur)> -1) {
+$req = Get_Db_Client($N_Client)->SQLQuery("SELECT * FROM $DB_dbName_GED.z_form_demande_conge WHERE
+id_sub = #sub#",$Tab)->fetchAll(); 
 
-    bouton_visible = true;
+
+if (count($req)>0) {
+
+
+    $Valeurs["custom_t1"]   = $req[0]['nom'].' '.$req[0]['prenom']; //Salarié | Nom Prénom
+    $Valeurs["custom_d4"]   = $req[0]["Date"]; //Date de la demande
+
+
+    $Valeurs["custom_d3"]   = $req[0]["date_debut"];//Date de Début
+    $Valeurs["custom_d5"]   = $req[0]["Date_fin"];//Date de fin
+    $Valeurs["custom_f1"]   = $req[0]["total_jour"];//Total de jours
+    $Valeurs["custom_t5"]   = $req[0]["motif"];
+
+    $Valeurs["custom_t3"]   = $req[0]["valideur"];//Valideur
+
+
+    $Valeurs["custom_n2"]   = $req[0]["type_conge"];
+    $Valeurs["custom_n4"]   = $req[0]["duree"];
+
+
+
+
+    if($req[0]["duree"] == 'Une ½ journée'){
+        $Valeurs["custom_n6"]= "1";
+    }else{
+        $Valeurs["custom_n6"]= "2";
     }
+
+    switch ($req[0]["type_conge"]) {
+        case 'Autre':
+            $Valeurs["custom_t4"]   = $req[0]["autre"];
+            $Valeurs["custom_n2"]= "3";
+            break;
+        case "Congés payés":
+            $Valeurs["custom_n2"]= "1";
+            break;
+        case 'RTT':
+            $Valeurs["custom_n2"]= "2";
+            break;
+        case 'Congés sans soldes':
+            $Valeurs["custom_n2"]= "4";
+            break;
     }
-
+    switch ($req[0]["etat_validation"]) {
+        case 'Accorde':
+            $Valeurs["custom_n1"]=array(2);
+            break;
+        case "N'accorde pas":
+            $Valeurs["custom_n1"]=array(5);
+            break;
+        case 'Accorde seulement':
+            $Valeurs["custom_n1"]=array(3);
+            $Valeurs["custom_d1"]   = $req[0]["validation_date_debut"];//Validation | Date de début
+            $Valeurs["custom_d2"]   = $req[0]["validation_date_fin"];//Validation | Date de fin
+            break;
     }
+}
 
-    if(bouton_visible) {
+$Valeurs["custom_n3"] = $Valeurs['Uploader_Entity'];
 
-    setTimeout(function() {
-
-    Doc_Id = Res_Id;
-
-    if (Coll_Id == "coll_11") {
-
-
-    $("#div_actions").prepend(
-    "<a href=\"/zeppelin_france/_ClientSpecific/Form_Demande_Conge_Coll_4.php?"+ Coll_Id +"&Res_Id="+ Res_Id +" &edit="+ Res_Id +" \" onclick=\"popup('/zeppelin_france/_ClientSpecific/Form_Demande_Conge_Coll_4.php?"+ Coll_Id +"&Res_Id="+ Res_Id +" &edit=1', 'POP_Edition_"+ Res_Id +"' );\" target=\"POP_Edition_"+ Res_Id +"\>
-        <div class=\"Bouton_Action_Viewer\" id=\"Bouton_Webinar\" style=\"width: 200px;background-color:#0080c0;color:white;height:45px;\">
-            <div class=\"Logo_Bouton_Action_Viewer\">
-                <div class=\"icon-pencil icone-bouton\" style=\"font-size:30px;display:inline-block;\"></div>
-            </div>
-            <div class=\"Label_Bouton_Action_Viewer\">Editer</div>
-        </div>
-    </a>"
-    );
-
+if (empty($Valeurs["custom_n1"]))
+    {
+     $Valeurs["custom_n1"]= "1";
     }
-    }, 100);
-    }
-    });
+?>

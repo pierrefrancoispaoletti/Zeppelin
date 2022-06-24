@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang='fr'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- <script>
+        let test= []
+        async function getFormDatas (){ 
+            let datas = [];
+                try {
+
+                    const response = await axios({
+                        method: 'GET',
+                        url: 'https://eu-api.jotform.com/form/221433499774062/submissions?apiKey=e48e4ea698676dde6cc8722efd0f8b63'
+                    }
+                    )
+                    if(response) { 
+                        datas = response.data.content
+                        return datas;
+                    }
+
+                } catch (e) { 
+                    console.log(e);
+                }
+            };
+
+           ( async ()=> { 
+            test =await getFormDatas()
+            console.log(test.find((el) => el.id === "5297194149209659001" ));
+
+        
+        })();
+    </script> -->
+</head>
+
+<style>
+    body {
+        margin: 18px;
+    }
+
+    .section_salarie {
+        position: relative;
+        height: 800px;
+        font-size: 1.2em;
+    }
+
+    .section_responsable {
+        position: relative;
+        font-size: 1.2em;
+
+    }
+
+    .title {
+        text-align: center;
+    }
+
+    .user {
+        position: relative;
+        padding: 0.5em;
+        margin: 12px 12px 40px 12px;
+        border: 1px solid black;
+        height: 65px;
+        font-size: 1.2em;
+    }
+
+    .user_firstname {
+        position: absolute;
+        left: 12px;
+
+    }
+
+    .user_lastname {
+        position: absolute;
+        right: 12px;
+    }
+
+    .user_date_demande {
+        position: absolute;
+        bottom: 12px;
+    }
+
+    .salarie_demi {
+
+        margin: 11px 0;
+    }
+
+    .salarie_titre {
+        border-bottom: 3px solid black;
+    }
+
+    .salarie_motif {
+        font-size: 1.2em;
+    }
+
+    .demi {
+
+        margin-right: 12px;
+    }
+
+    .salarie_date {
+        display: inline-block;
+        margin: 0 55px;
+    }
+
+    .nbr_jour {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        right: 45px;
+        border: 2px solid black;
+        height: 48px;
+        width: 45%;
+    }
+
+    .nbr_jour span {
+        font-weight: bold;
+        font-size: 1.4em;
+    }
+
+    .valable {
+        position: absolute;
+        top: 450px;
+        left: 0;
+    }
+
+    .valable_checkbox {
+        position: absolute;
+        top: 0;
+        right: -500px
+    }
+
+    .section_responsable {
+        position: relative;
+        height: 200px
+    }
+
+    .signature {
+        position: absolute;
+        margin: 12px;
+        height: 60px;
+        border: 2px solid black;
+        width: 300px;
+        right: 0;
+    }
+
+    .signature_part {
+        margin: 8px
+    }
+
+    footer {
+        border-top: 1px solid black;
+        position: absolute;
+        bottom: -300px;
+    }
+</style>
+
+<body>
+   <header>
+    <h1 class="title">DEMANDE DE CONGES <sup>1</sup></h1>
+   </header>
+<main>
+
+    <section class="section_salarie">
+        <div class="user">
+            <div class="user_firstname">
+                Nom : $FirstName
+            </div>
+            <div class="user_lastname">
+                Prénom : $LastName
+            </div>
+            <div class="user_date_demande">
+                Demande Du : $DateDepot
+            </div>
+        </div>
+        <div class="salarie">
+            <h2 class="salarie_titre">À remplir par le salarié :</h2>
+            <div class="salarie_motif">
+                Je demande un congé pour le motif <sup>2</sup> suivant : $motif
+            </div>
+            <div class="salarie_demi">
+                <input type="checkbox" class="demi" name="demi" id="demi">
+                <label for="demi">Une 1/2 journée</label>
+                <span class="salarie_date">Le : $DateDebut</span>
+                <input type="checkbox" name="demi" class="demi" id="demi_matin">
+                <label for="demi_matin">Matin</label>
+                <input type="checkbox" class="demi" name="demi" id="demi_am">
+                <label for="demi">Aprés-Midi</label>
+            </div>
+            <div class="salarie_demi">
+                <input type="checkbox" class="demi" name="demi" id="demi">
+                <label for="demi">Une journée complête</label>
+                <span class="salarie_date">Le : $DateDebut</span>
+            </div>
+            <div class="salarie_demi">
+                <input type="checkbox" class="demi" name="demi" id="demi">
+                <label for="demi">Plusieurs Jours</label>
+                <span class="salarie_date">Du : $DateDebut</span>
+                <span class="salarie_date">Au : $DateDebut</span>
+            </div>
+        </div>
+        <div class="nbr_jour">
+            Soit : <span>$nbrJour</span> jours de congés au total
+        </div>
+        <div class="valable">
+            <div>
+                <div>
+                    <span>Valable pour :</span>
+                </div>
+                <div class="valable_checkbox">
+                    <div>
+                        <input type="checkbox" class="demi" name="demi" id="demi">
+                        <label for="demi">Congés payés</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="demi" class="demi" id="demi_matin">
+                        <label for="demi_matin">RTT</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="demi" name="demi" id="demi_am">
+                        <label for="demi">Conges sans soldes</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="demi" name="demi" id="demi_am">
+                        <label for="demi">Autres</label>
+                        <span>$autres</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section_responsable">
+        <div>
+            <h2 class="salarie_titre">À remplir par un responsable : </h2>
+        </div>
+        <div>
+            Je soussigné : $NomValideur;
+        </div>
+            <input type="checkbox" class="demi" name="demi" id="demi">
+            <label for="demi">Accorde</label>
+            <input type="checkbox" name="demi" class="demi" id="demi_matin">
+            <label for="demi_matin">N'accorde pas</label>
+        <div>
+            <input type="checkbox" class="demi" name="demi" id="demi_am">
+            <label for="demi">Accorde seulement du : </label>
+            <span>$datedebutvalideur au $datefinvalideur</span>
+        </div>
+        <div class="signature">
+            <div class="signature_part">
+                <span class="demi"> Date: $datevalidation</span>
+            </div>
+            <div class="signature_part">
+                <span>Signature :</span>
+            </div>
+        </div>
+
+    
+    </section>
+</main>
+<footer>
+    <p>
+        <sup>1</sup> L'original doit être remis au service comptabilité, faut de quoi, la Direction peut considérer le salarié comme ayant abandonné son poste de travail.
+    </p>
+    <p>
+        <sup>2</sup> Motif: facultatif
+    </p>
+</footer>
+
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const FormStyled = styled.form`
   display: flex;
@@ -138,6 +138,15 @@ export const SecondPartFromFormStyled = styled.div`
   }
 `;
 
+const isError = (props) => {
+  if (props.error) {
+    css`
+      background: red;
+      color: white;
+    `;
+  }
+};
+
 export const ButtonStyled = styled.button`
   font-size: 1.5em;
   width: 35%;
@@ -147,4 +156,9 @@ export const ButtonStyled = styled.button`
   border: none;
   padding: 0.5em;
   color: white;
+  ${isError}
+  :disabled {
+    background: lightgrey;
+    color: black;
+  }
 `;
