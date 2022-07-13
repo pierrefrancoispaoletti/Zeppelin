@@ -13,7 +13,6 @@ const Form = ({ user, edit, InitialState }) => {
   const [userInfos, setUserInfos] = useState({ ...InitialState });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [datas, setDatas] = useState({});
 
   const { User_Id, FirstName, LastName } = user;
 

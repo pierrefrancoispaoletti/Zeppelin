@@ -1,11 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { documentData, user, tableauIndex } from "../datas";
 import Form from "../Form/Form";
-
+let edit = false;
 function App() {
-  // let user = window.user;
-  // let documentData = window.documentData;
-  // let tableauIndex = window.tableauIndex;
+  let user = window.user;
+  let documentData = window.documentData;
+  let tableauIndex = window.tableauIndex;
+  let userInfos = window.userInfos;
   let InitialState = useMemo(
     () => ({
       FirstName: "",
@@ -57,8 +58,6 @@ function App() {
     return findDeposeurName.VALEURS[field];
   }, []);
 
-  let edit = false;
-
   if (documentData) {
     const {
       custom_d3, //date debut demande
@@ -76,14 +75,6 @@ function App() {
     const setStateFromDocumentData = (edit) => {
       if (edit && documentData) {
         let initialState = { ...InitialState };
-        let nameDeposeur = findDatasInTableauIndex(
-          custom_t1[0],
-          "custom_t1"
-        ).split(" ");
-        let nameValideur = findDatasInTableauIndex(
-          custom_t3[0],
-          "custom_t3"
-        ).split(" ");
         let dateDebut = custom_d3[0];
         let dateFin = custom_d5[0];
         let dateDemande = custom_d4[0];
@@ -94,10 +85,10 @@ function App() {
         let autre = custom_t4[0];
         let motif = custom_t5[0];
         initialState.userIdDeposeur = custom_t1[0];
-        initialState.FirstName = nameDeposeur[0];
-        initialState.LastName = nameDeposeur[1];
-        initialState.Valideur.FirstName = nameValideur[0];
-        initialState.Valideur.LastName = nameValideur[1];
+        initialState.FirstName = userInfos.Deposeur_Id[0].firstname;
+        initialState.LastName = userInfos.Deposeur_Id[0].lastname;
+        initialState.Valideur.FirstName = userInfos.Valideur_Id[0].firstname;
+        initialState.Valideur.LastName = userInfos.Valideur_Id[0].lastname;
         initialState.Date_Debut = dateDebut;
         initialState.Date_Fin = dateFin;
         initialState.Date = dateDemande;
