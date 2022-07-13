@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LoaderStyled } from "../Loader/loader.style";
 import {
   ButtonStyled,
@@ -9,10 +9,12 @@ import {
   Separator,
 } from "./form.styled";
 
-const Form = ({ user, edit, InitialState }) => {
+const Form = ({ user, edit, InitialState, Res_Id }) => {
   const [userInfos, setUserInfos] = useState({ ...InitialState });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  const [holidays, setHolidays] = useState({});
 
   const { User_Id, FirstName, LastName } = user;
 
@@ -53,7 +55,10 @@ const Form = ({ user, edit, InitialState }) => {
       : userInfos.Duree.full
       ? 1
       : userInfos.Duree.multi
-      ? dateDiff(new Date(userInfos.Date_Debut), new Date(userInfos.Date_Fin))
+      ? getBusinessDatesCount(
+          new Date(userInfos.Date_Debut),
+          new Date(userInfos.Date_Fin)
+        )
       : 0;
 
     setUserInfos({ ...userInfos, TotalJour });
@@ -107,11 +112,14 @@ const Form = ({ user, edit, InitialState }) => {
     setLoading(true);
     const response = await axios({
       method: "POST",
-      url: "traitement.php",
+      url: `traitement.php${edit ? "/?edit=" + Res_Id : ""}`,
       data: JSON.stringify(userInfos),
     });
     if (response.data.status === "OK") {
       setLoading(false);
+      setTimeout(() => {
+        window.close();
+      }, 1000);
     } else {
       setLoading(false);
       setError(true);
@@ -128,14 +136,60 @@ const Form = ({ user, edit, InitialState }) => {
     setUserInfos({ ...userInfos, [name]: value });
   };
 
-  const dateDiff = (dateDebut, dateFin) => {
-    const calc = Math.ceil(
-      Math.abs(dateFin - dateDebut) / (1000 * 60 * 60 * 24)
-    );
-    if (dateDebut && dateFin && !isNaN(calc)) {
-      return calc;
+  // const dateDiff = (dateDebut, dateFin) => {
+  //   const calc = Math.ceil(
+  //     Math.abs(dateFin - dateDebut) / (1000 * 60 * 60 * 24)
+  //   );
+  //   if (dateDebut && dateFin && !isNaN(calc)) {
+  //     return calc;
+  //   }
+  //   return 0;
+  // };
+
+  const isHoliday = useCallback(async () => {
+    const currentYear = new Date().getFullYear();
+    const response = await axios({
+      method: "GET",
+      url: `https://calendrier.api.gouv.fr/jours-feries/metropole/${currentYear}.json`,
+    });
+
+    setHolidays(response.data);
+  }, []);
+
+  const isWorkingDay = useCallback(
+    (d) => {
+      let dateSplitted = d?.split("/");
+      let day = dateSplitted[0];
+      let month = dateSplitted[1] - 1;
+      let year = dateSplitted[2];
+
+      const feriesKeys = Object.keys(holidays);
+
+      if (feriesKeys.find((el) => el === `${year}-0${month + 1}-${day}`)) {
+        return false;
+      }
+      return true;
+    },
+    [holidays]
+  );
+
+  const getBusinessDatesCount = (startDate, endDate) => {
+    let count = 0;
+    let curDate = +startDate;
+    if (Object.keys(holidays).length === 0) {
+      isHoliday();
     }
-    return 0;
+    while (curDate <= +endDate) {
+      const dayOfWeek = new Date(curDate).getDay();
+      const localeDate = new Date(curDate).toLocaleDateString();
+      const isWeekend =
+        dayOfWeek === 6 || dayOfWeek === 0 || !isWorkingDay(localeDate);
+      if (!isWeekend) {
+        count++;
+      }
+      curDate = curDate + 24 * 60 * 60 * 1000;
+    }
+    return count;
   };
 
   return (

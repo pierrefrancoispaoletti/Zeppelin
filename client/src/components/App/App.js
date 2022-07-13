@@ -1,12 +1,14 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { documentData, user, tableauIndex } from "../datas";
 import Form from "../Form/Form";
 let edit = false;
 function App() {
-  let user = window.user;
+  // let user = window.user;
   let documentData = window.documentData;
-  let tableauIndex = window.tableauIndex;
-  let userInfos = window.userInfos;
+  // let tableauIndex = window.tableauIndex;
+  let userInfos = window.userinfos;
+  let Res_Id = window.Res_Id;
+
   let InitialState = useMemo(
     () => ({
       FirstName: "",
@@ -49,14 +51,6 @@ function App() {
     }),
     []
   );
-  const findDatasInTableauIndex = useCallback((field, column) => {
-    let findDeposeurName = tableauIndex.find((el) => {
-      if (el.COLUMN === column) {
-        return el;
-      }
-    });
-    return findDeposeurName.VALEURS[field];
-  }, []);
 
   if (documentData) {
     const {
@@ -85,10 +79,10 @@ function App() {
         let autre = custom_t4[0];
         let motif = custom_t5[0];
         initialState.userIdDeposeur = custom_t1[0];
-        initialState.FirstName = userInfos.Deposeur_Id[0].firstname;
-        initialState.LastName = userInfos.Deposeur_Id[0].lastname;
-        initialState.Valideur.FirstName = userInfos.Valideur_Id[0].firstname;
-        initialState.Valideur.LastName = userInfos.Valideur_Id[0].lastname;
+        initialState.FirstName = userInfos?.Deposeur_Id[0].firstname;
+        initialState.LastName = userInfos?.Deposeur_Id[0].lastname;
+        initialState.Valideur.FirstName = userInfos?.Valideur_Id[0].firstname;
+        initialState.Valideur.LastName = userInfos?.Valideur_Id[0].lastname;
         initialState.Date_Debut = dateDebut;
         initialState.Date_Fin = dateFin;
         initialState.Date = dateDemande;
@@ -153,6 +147,7 @@ function App() {
         tableauIndex={tableauIndex}
         edit={edit}
         InitialState={InitialState}
+        Res_Id={Res_Id}
       />
     </div>
   );
